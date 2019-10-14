@@ -10,4 +10,11 @@ For more details about this sensor, please refer to the documentation at
 https://github.com/Limych/ha-average/
 """
 
-from .sensor import VERSION
+# Base component constants
+__author__ = 'Andrey "Limych" Khrolenok <andrey@khrolenok.ru>'
+__version__ = '1.4.1'
+__website__ = 'https://github.com/Limych/ha-beward'
+__license__ = 'Creative Commons BY-NC-SA License'
+
+VERSION = __version__
+ISSUE_URL = "https://github.com/Limych/ha-average/issues"

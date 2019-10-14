@@ -33,11 +33,9 @@ from homeassistant.helpers.event import async_track_state_change
 from homeassistant.util import Throttle
 from homeassistant.util.temperature import convert as convert_temperature
 
-_LOGGER = logging.getLogger(__name__)
+from . import VERSION, ISSUE_URL
 
-# Base component constants
-VERSION = '1.4.1'
-ISSUE_URL = "https://github.com/Limych/ha-average/issues"
+_LOGGER = logging.getLogger(__name__)
 
 CONF_START = 'start'
 CONF_END = 'end'
@@ -73,8 +71,8 @@ def check_period_keys(conf):
     count = sum(param in conf for param in CONF_PERIOD_KEYS)
     if (count == 1 and CONF_DURATION not in conf) or count > 2:
         raise vol.Invalid(
-            "You must provide none, only " + CONF_DURATION +
-            " or maximum 2 of the following: "
+            'You must provide none, only ' + CONF_DURATION +
+            ' or maximum 2 of the following: '
             ', '.join(CONF_PERIOD_KEYS)
         )
     return conf

@@ -18,6 +18,7 @@ import homeassistant.util.dt as dt_util
 import voluptuous as vol
 from homeassistant.components import history
 from homeassistant.components.climate import ClimateDevice
+from homeassistant.components.group import expand_entity_ids
 from homeassistant.components.water_heater import WaterHeaterDevice
 from homeassistant.components.weather import WeatherEntity
 from homeassistant.const import (
@@ -130,7 +131,7 @@ class AverageSensor(Entity):    # pylint: disable=r0902
         self._end_template = end
         self._duration = duration
         self._period = self.start = self.end = None
-        self._entity_ids = entity_ids
+        self._entity_ids = expand_entity_ids(entity_ids)
         self._precision = precision
         self._state = None
         self._unit_of_measurement = None

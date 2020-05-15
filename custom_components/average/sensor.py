@@ -13,6 +13,7 @@ import logging
 import math
 import numbers
 from datetime import timedelta
+from typing import List
 
 import homeassistant.util.dt as dt_util
 import voluptuous as vol
@@ -22,7 +23,7 @@ from homeassistant.components.group import expand_entity_ids
 from homeassistant.components.water_heater import WaterHeaterDevice
 from homeassistant.components.weather import WeatherEntity
 from homeassistant.const import (
-    CONF_NAME, CONF_ENTITIES, EVENT_HOMEASSISTANT_START,
+    CONF_NAME, CONF_ENTITIES, EVENT_HOMEASSISTANT_STARTED,
     ATTR_UNIT_OF_MEASUREMENT, TEMP_CELSIUS, TEMP_FAHRENHEIT,
     UNIT_NOT_RECOGNIZED_TEMPLATE, TEMPERATURE, STATE_UNKNOWN,
     STATE_UNAVAILABLE, ATTR_ICON)
@@ -119,10 +120,10 @@ async def async_setup_platform(hass, config, async_add_entities,
         [AverageSensor(hass, name, start, end, duration, entities, precision)])
 
 
-class AverageSensor(Entity):    # pylint: disable=r0902
+class AverageSensor(Entity):  # pylint: disable=r0902
     """Implementation of an Average sensor."""
 
-    def __init__(self, hass, name: str, start, end, duration, entity_ids: list, # pylint: disable=r0913
+    def __init__(self, hass, name: str, start, end, duration, entity_ids: list,  # pylint: disable=r0913
                  precision: int):
         """Initialize the sensor."""
         self._hass = hass
@@ -131,7 +132,7 @@ class AverageSensor(Entity):    # pylint: disable=r0902
         self._end_template = end
         self._duration = duration
         self._period = self.start = self.end = None
-        self._entity_ids = expand_entity_ids(entity_ids)
+        self._entity_ids = entity_ids
         self._precision = precision
         self._state = None
         self._unit_of_measurement = None
@@ -204,7 +205,7 @@ class AverageSensor(Entity):    # pylint: disable=r0902
             if self._has_period:
                 self.async_schedule_update_ha_state(True)
             else:
-                async_track_state_change(self._hass, self._entity_ids,
+                async_track_state_change(self._hass, self._get_entity_ids(),
                                          sensor_state_listener)
                 sensor_state_listener(None, None, None)
 
@@ -295,7 +296,7 @@ class AverageSensor(Entity):    # pylint: disable=r0902
         _LOGGER.error("Error parsing template for field %s", field)
         _LOGGER.error(ex)
 
-    def _update_period(self):   # pylint: disable=r0912
+    def _update_period(self):  # pylint: disable=r0912
         """Parse the templates and calculate a datetime tuples."""
         start = end = None
         now = dt_util.now()
@@ -371,7 +372,13 @@ class AverageSensor(Entity):    # pylint: disable=r0902
         self.start = start.replace(microsecond=0).isoformat()
         self.end = end.replace(microsecond=0).isoformat()
 
-    def _update_state(self):    # pylint: disable=r0914,r0912,r0915
+    def _get_entity_ids(self) -> List[str]:
+        _LOGGER.debug("Entity ids: %s", self._entity_ids)
+        expanded = expand_entity_ids(self._hass, self._entity_ids)
+        _LOGGER.debug("Expanded entity ids: %s", expanded)
+        return expanded
+
+    def _update_state(self):  # pylint: disable=r0914,r0912,r0915
         """Update the sensor state."""
         _LOGGER.debug('Updating sensor "%s"', self.name)
         start = end = start_ts = end_ts = None
@@ -414,8 +421,7 @@ class AverageSensor(Entity):    # pylint: disable=r0902
         values = []
         self.count = 0
         self.min_value = self.max_value = None
-
-        for entity_id in self._entity_ids:  # pylint: disable=r1702
+        for entity_id in self._get_entity_ids():  # pylint: disable=r1702
             _LOGGER.debug('Processing entity "%s"', entity_id)
 
             entity = self._hass.states.get(entity_id)

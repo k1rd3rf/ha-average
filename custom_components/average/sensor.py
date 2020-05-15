@@ -209,7 +209,7 @@ class AverageSensor(Entity):  # pylint: disable=r0902
                                          sensor_state_listener)
                 sensor_state_listener(None, None, None)
 
-        self._hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START,
+        self._hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED,
                                          sensor_startup)
 
     @staticmethod

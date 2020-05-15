@@ -39,7 +39,7 @@ from homeassistant.util.temperature import convert as convert_temperature
 _LOGGER = logging.getLogger(__name__)
 
 # Base component constants
-VERSION = '1.4.2'
+VERSION = '1.4.4-group.3'
 ISSUE_URL = "https://github.com/Limych/ha-average/issues"
 
 CONF_START = 'start'

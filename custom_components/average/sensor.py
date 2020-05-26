@@ -52,6 +52,7 @@ DEFAULT_NAME = 'Average'
 
 ATTR_START = 'start'
 ATTR_END = 'end'
+ATTR_SOURCES = 'sources'
 ATTR_COUNT_SOURCES = 'count_sources'
 ATTR_AVAILABLE_SOURCES = 'available_sources'
 ATTR_COUNT = 'count'
@@ -61,6 +62,7 @@ ATTR_MAX_VALUE = 'max_value'
 ATTR_TO_PROPERTY = [
     ATTR_START,
     ATTR_END,
+    ATTR_SOURCES,
     ATTR_COUNT_SOURCES,
     ATTR_AVAILABLE_SOURCES,
     ATTR_COUNT,
@@ -142,6 +144,7 @@ class AverageSensor(Entity):  # pylint: disable=r0902
         self.available_sources = 0
         self.count = 0
         self.min_value = self.max_value = None
+        self.sources = []
 
     @property
     def _has_period(self) -> bool:
@@ -267,7 +270,7 @@ class AverageSensor(Entity):  # pylint: disable=r0902
         try:
             state = float(state)
         except ValueError:
-            _LOGGER.error('Could not convert value "%s" to float', state)
+            _LOGGER.error('Could not convert value "%s" to float for entity: %s', state, entity)
             return None
 
         self.count += 1
@@ -375,6 +378,7 @@ class AverageSensor(Entity):  # pylint: disable=r0902
     def _get_entity_ids(self) -> List[str]:
         _LOGGER.debug("Entity ids: %s", self._entity_ids)
         expanded = expand_entity_ids(self._hass, self._entity_ids)
+        self.sources = expanded
         _LOGGER.debug("Expanded entity ids: %s", expanded)
         return expanded
 
@@ -425,6 +429,7 @@ class AverageSensor(Entity):  # pylint: disable=r0902
             _LOGGER.debug('Processing entity "%s"', entity_id)
 
             entity = self._hass.states.get(entity_id)
+            _LOGGER.debug('Entity: "%s"', entity)
 
             if entity is None:
                 _LOGGER.error('Unable to find an entity "%s"', entity_id)
